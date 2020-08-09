@@ -1,0 +1,73 @@
+seed: 2020
+
+train_df: train_32000.csv
+
+data_path: ../input/birdsong-recognition
+dataset: 
+    type: BirdSongFlipIdDataset
+    params:
+        data_path: ../input/birdsong-recognition/train_audio_resampled_32000
+        sr: 32000
+        img_size: 224
+        spectrogram_transforms: null
+        waveform_transforms: null
+    
+num_fold: 5
+target: ebird_code
+num_epoch: 50
+# num_epoch: 100
+batchsize: 64
+
+num_workers: 6
+
+optimizer: 
+    type: Adam
+    params:
+        separate_head: True
+        lr: 1.e-3
+        lr_e: 1.e-3
+
+scheduler: 
+    type: CosineAnnealingLR
+    params: 
+        T_max: 10
+        # T_max: 20
+        eta_min: 1.e-8
+
+pretrain_path: null
+logdir: ../logs/resnest50f_bce_flipid
+
+model:
+    backbone: 
+        type: resnest50_fast_1s1x64d
+        params:
+            backbone_weights: imagenet
+    heads:
+        output1: 
+            type: SimpleHead
+            params:
+                num_class: 528
+                pooling: GeM
+    mid_activation: ReLU
+    
+loss_fn:
+    classification:
+        type: BCEWithLogitsLoss
+        params: null
+
+engine: 
+    type: BirdSongFlipIdEngine
+    params: 
+        init_epoch: 0
+        save_interval: -1
+        accumulation_steps: 1
+        save_metrics: [f1]
+        save_losses: [loss]
+        use_amp: true
+        opt_level: O1
+        calc_train_metrics: true
+        calc_metrics_mode: epoch
+        requierd_eval_data: [targets]
+
+# when without tta, proba = proba[:, :264]
+# when tta, proba = (proba[:, :264] + proba[:, 264:]) / 2
