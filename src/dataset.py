@@ -146,7 +146,7 @@ class BirdSongDataset(data.Dataset):
 
         labels = np.zeros(len(BIRD_CODE), dtype=np.float32)
         labels[BIRD_CODE[ebird_code]] = 1.
-
+    
         return {
             "image": image,
             "targets": labels
