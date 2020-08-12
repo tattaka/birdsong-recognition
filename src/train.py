@@ -12,7 +12,7 @@ from taggle.engine import (
     TensorBoardExtension
 )
 from taggle.losses import get_losses_dict
-from taggle.models import ModelProvider
+# from taggle.models import ModelProvider
 from taggle.models.sync_batchnorm import convert_model
 from taggle.optimizers import get_optimizer
 from taggle.utils import stratified_kfold_cross_validator
@@ -25,6 +25,7 @@ from torch.utils.data import DataLoader
 
 from dataset import dataset_zoo
 from engines import engine_zoo
+from models import BirdSongModelProvider
 
 
 def worker_init_fn(worker_id):
@@ -39,7 +40,8 @@ def main(config, one_fold=False):
     torch.backends.cudnn.deterministic = True
     np.random.seed(seed)
     torch.manual_seed(seed)
-    model_provider = ModelProvider()
+    # model_provider = ModelProvider()
+    model_provider = BirdSongModelProvider()
     if os.path.exists(config["logdir"]):
         import datetime
         dt_now = datetime.datetime.now()

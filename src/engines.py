@@ -108,31 +108,71 @@ class BirdSongFlipIdEngine(BirdSongEngine):
 
 
 def mixup_wrapper(WrappedClass: BirdSongEngine):
+
     class BirdSongMixUpEngine(WrappedClass):
         lam = 1
         index = None
+        mixup = False
+        cutmix = False
 
         def calc_losses(self, outputs, data):
             losses = {}
-
-            loss_a = super().calc_losses(outputs, data)["loss"]
-            data["target"] = data["target"][self.index]
-            loss_b = super().calc_losses(outputs, data)["loss"]
-            losses["loss"] = self.lam * loss_a + (1 - self.lam) * loss_b
-            return losses
+            if self.mixup:
+                loss_a = super().calc_losses(outputs, data)["loss"]
+                data["targets"] = data["targets"][self.index]
+                loss_b = super().calc_losses(outputs, data)["loss"]
+                losses["loss"] = self.lam * loss_a + (1 - self.lam) * loss_b
+                return losses
+            else:
+                return super().calc_losses(outputs, data)
 
         def forward(self, data):
-            alpha = random.random() * self.alpha * 0.2 + self.alpha * 0.8
-            if alpha > 0:
-                self.lam = np.random.beta(alpha, alpha)
+            if self.mixup_prob > random.random() and self.mode == "train":
+                self.mixup = True
+                if self.cutmix_prob >= random.random():
+                    self.cutmix = True
+                else:
+                    self.cutmix = False
             else:
-                self.lam = 1
-            self.index = torch.randperm(data["image"].shape[0])
-            self.index.cuda()
-            data["image"] = self.lam * data["image"] + \
-                (1 - self.lam) * data["image"][self.index]
-            outputs = self.models["default"](data["image"])
-            return outputs
+                self.mixup = False
+                self.cutmix = False
+            if self.mixup:
+                alpha = random.random() * self.alpha * 0.2 + self.alpha * 0.8
+                if alpha > 0:
+                    self.lam = np.random.beta(alpha, alpha)
+                else:
+                    self.lam = 1
+                self.index = torch.randperm(data["image"].shape[0])
+                self.index.cuda()
+                if self.cutmix:
+                    band_width = int(data["image"].size(-1) * (1 - self.lam))
+                    start = np.random.randint(
+                        data["image"].size(-1) - band_width)
+                    data["image"][:, :, :, start: start + band_width] \
+                        = data["image"][self.index, :, :, start: start + band_width]
+                    # ["time cutmix + mel cutmix"]
+                    # mel cutmix not working......
+                    # if random.random() > 0.5:
+                    #     band_width = int(
+                    #         data["image"].size(-1) * (1 - self.lam))
+                    #     start = np.random.randint(
+                    #         data["image"].size(-1) - band_width)
+                    #     data["image"][:, :, :, start: start + band_width] \
+                    #         = data["image"][self.index, :, :, start: start + band_width]
+                    # else:
+                    #     band_height = int(
+                    #         data["image"].size(-2) * (1 - self.lam))
+                    #     start = np.random.randint(
+                    #         data["image"].size(-2) - band_height)
+                    #     data["image"][:, :, start: start + band_height, :] \
+                    #         = data["image"][:, :, start: start + band_height, :]
+                else:
+                    data["image"] = self.lam * data["image"] + \
+                        (1 - self.lam) * data["image"][self.index]
+                outputs = self.models["default"](data["image"])
+                return outputs
+            else:
+                return super().forward(data)
     return BirdSongMixUpEngine
 
 
@@ -141,4 +181,4 @@ engine_zoo = {"BirdSongBCEEngine": BirdSongBCEEngine,
               "BirdSongOUSMEngine": BirdSongOUSMEngine,
               "BirdSongFlipIdEngine": BirdSongFlipIdEngine,
               "BirdSongOHEMEngine": BirdSongOHEMEngine,
-              "BirdSongMixupBCEEngine": mixup_wrapper(BirdSongBCEEngine)}
+              "BirdSongMixUpBCEEngine": mixup_wrapper(BirdSongBCEEngine)}

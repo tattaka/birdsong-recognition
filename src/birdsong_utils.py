@@ -392,25 +392,23 @@ def get_transforms(size,
                    spec_prob=0.5):
     if mode == "train":
         transforms = Compose([
-            # OneOf([
-            #     PadToSize(size, mode='wrap'),
-            #     PadToSize(size, mode='constant'),
-            # ], p=[wrap_pad_prob, 1 - wrap_pad_prob]),
-            # RandomCrop(size),
-            # UseWithProb(
-            #     RandomResizedCrop(scale=resize_scale, ratio=resize_ratio),
-            #     prob=resize_prob
-            # ),
+            OneOf([
+                PadToSize(size, mode='wrap'),
+                PadToSize(size, mode='constant'),
+            ], p=[wrap_pad_prob, 1 - wrap_pad_prob]),
+            RandomCrop(size),
+            UseWithProb(
+                RandomResizedCrop(scale=resize_scale, ratio=resize_ratio),
+                prob=resize_prob
+            ),
             UseWithProb(SpecAugment(num_mask=spec_num_mask,
                                     freq_masking=spec_freq_masking,
-                                    time_masking=spec_time_masking), spec_prob),
-            ImageToTensor()
+                                    time_masking=spec_time_masking), spec_prob)
         ])
     else:
         transforms = Compose([
-            # PadToSize(size),
-            # CenterCrop(size),
-            ImageToTensor()
+            PadToSize(size),
+            CenterCrop(size),
         ])
     return transforms
 
@@ -425,11 +423,9 @@ def get_specaugment_transforms(mode="train",
             UseWithProb(SpecAugment(num_mask=spec_num_mask,
                                     freq_masking=spec_freq_masking,
                                     time_masking=spec_time_masking), spec_prob),
-            ImageToTensor()
         ])
     else:
         transforms = Compose([
-            ImageToTensor()
         ])
     return transforms
 

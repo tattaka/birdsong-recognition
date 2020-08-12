@@ -15,6 +15,7 @@ dataset:
 num_fold: 5
 target: ebird_code
 num_epoch: 50
+# num_epoch: 100
 batchsize: 64
 
 num_workers: 6
@@ -30,10 +31,11 @@ scheduler:
     type: CosineAnnealingLR
     params: 
         T_max: 10
+        # T_max: 20
         eta_min: 1.e-8
 
 pretrain_path: null
-logdir: ../logs/resnest50f_bce_baseline_fp32
+logdir: ../logs/resnest50f_bce_mixup
 
 model:
     backbone: 
@@ -54,16 +56,18 @@ loss_fn:
         params: null
 
 engine: 
-    type: BirdSongBCEEngine
+    type: BirdSongMixUpBCEEngine
     params: 
         init_epoch: 0
         save_interval: -1
         accumulation_steps: 1
         save_metrics: [f1]
         save_losses: [loss]
-        # use_amp: true
         use_amp: false
         opt_level: O1
         calc_train_metrics: true
         calc_metrics_mode: epoch
         requierd_eval_data: [targets]
+        alpha: 1.0
+        mixup_prob: 0.6
+        cutmix_prob: 0
