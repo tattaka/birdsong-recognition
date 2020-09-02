@@ -34,11 +34,11 @@ scheduler:
         eta_min: 1.e-8
 
 pretrain_path: null
-logdir: ../logs/resnest50f_bcekd_mixup
+logdir: ../logs/efficientnet-b1_bcekd_baseline
 
 model:
     backbone: 
-        type: resnest50_fast_1s1x64d
+        type: efficientnet-b1
         params:
             backbone_weights: imagenet
     heads:
@@ -55,7 +55,7 @@ loss_fn:
         params: null
 
 engine: 
-    type: BirdSongMixUpBCEKDEngine
+    type: BirdSongBCEKDEngine
     params: 
         init_epoch: 0
         save_interval: -1
@@ -67,6 +67,3 @@ engine:
         calc_train_metrics: true
         calc_metrics_mode: epoch
         requierd_eval_data: [targets_clip]
-        alpha: 1.0
-        mixup_prob: 0.6
-        cutmix_prob: 0.0

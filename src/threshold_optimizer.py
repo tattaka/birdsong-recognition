@@ -36,8 +36,6 @@ def main(configs, target_fold=-1):
         output_conf = []
         recon_df = []
         for fold in tqdm(range(c_dict["num_fold"]), leave=False):
-            if target_fold > 0 and target_fold == fold:
-                break
             valid_df = pd.read_csv(os.path.join(
                 csv_dir, f'valid_fold{fold}.csv'))
             model = model_provider.get_model(c_dict["model"])
@@ -50,6 +48,8 @@ def main(configs, target_fold=-1):
             model.to(device)
             model = nn.DataParallel(model)
             model.eval()
+            if target_fold > 0 and target_fold != fold:
+                continue
             for idx in tqdm(range(len(valid_df)), leave=False):
                 valid_dataset = Dataset(df=valid_df,
                                         idx=idx,
@@ -85,6 +85,8 @@ def main(configs, target_fold=-1):
     macro_score = macro_optimizer.calc_score(pred_clips, trues, macro_coef)
     print(
         f"macro threshold {macro_coef} f1 score: {macro_score}")
+    print(
+        f"default threshold 0.5 f1 score: {macro_optimizer.calc_score(pred_clips, trues, [0.5])}")
     # micro_optimizer = ThresholdOptimizer(mode="micro")
     # micro_optimizer.fit(pred_clips, trues)
     # micro_coef = micro_optimizer.coefficients()

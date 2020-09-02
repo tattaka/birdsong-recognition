@@ -34,11 +34,11 @@ scheduler:
         eta_min: 1.e-8
 
 pretrain_path: null
-logdir: ../logs/efficientnet-b3_bcekd_baseline
+logdir: ../logs/resnest50f_bcekd_mixup
 
 model:
     backbone: 
-        type: efficientnet-b3
+        type: resnest50_fast_1s1x64d
         params:
             backbone_weights: imagenet
     heads:
@@ -67,3 +67,6 @@ engine:
         calc_train_metrics: true
         calc_metrics_mode: epoch
         requierd_eval_data: [targets_clip]
+        alpha: 1.0
+        mixup_prob: 0.6
+        cutmix_prob: 1.0
