@@ -3,6 +3,14 @@ import torch
 from sklearn.metrics import average_precision_score, f1_score
 
 
+def f1_averaging(logit, target):
+    logit = logit.detach().cpu().numpy()
+    y_true = target.detach().cpu().numpy()
+    # y_pred = logit.argmax(axis=1)
+    score = f1_score(y_true, logit, average="micro")
+    return torch.tensor(score)
+
+
 def f1(logit, target):
     logit = logit.detach().cpu().numpy()
     y_true = target.detach().cpu().numpy()

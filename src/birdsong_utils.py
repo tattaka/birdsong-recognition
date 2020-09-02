@@ -417,7 +417,7 @@ def get_specaugment_transforms(mode="train",
                                spec_num_mask=2,
                                spec_freq_masking=0.15,
                                spec_time_masking=0.20,
-                               spec_prob=0.5):
+                               spec_prob=0.2):
     if mode == "train":
         transforms = Compose([
             UseWithProb(SpecAugment(num_mask=spec_num_mask,

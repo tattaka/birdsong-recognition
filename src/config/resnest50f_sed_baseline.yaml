@@ -33,7 +33,7 @@ scheduler:
         eta_min: 1.e-8
 
 pretrain_path: null
-logdir: ../logs/resnest50f_bce_baseline
+logdir: ../logs/resnest50f_sed_baseline
 
 model:
     backbone: 
@@ -42,10 +42,17 @@ model:
             backbone_weights: imagenet
     heads:
         output1: 
-            type: SimpleHead
+            type: AttentionHead
             params:
+                att_type: v1
+                p: 0.2
                 num_class: 264
-                pooling: GeM
+    # heads:
+    #     output1: 
+    #         type: SimpleHead
+    #         params:
+    #             num_class: 264
+    #             pooling: GeM
     mid_activation: ReLU
     
 loss_fn:
@@ -54,7 +61,7 @@ loss_fn:
         params: null
 
 engine: 
-    type: BirdSongBCEEngine
+    type: BirdSongSEDEngine
     params: 
         init_epoch: 0
         save_interval: -1

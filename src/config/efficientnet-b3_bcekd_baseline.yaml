@@ -1,14 +1,15 @@
 seed: 2020
 
-train_df: train_32000.csv
+train_df: train_pl.csv
 
 data_path: ../input/birdsong-recognition
 dataset: 
-    type: BirdSongDataset
+    type: BirdSongKDDataset
     params:
         data_path: ../input/birdsong-recognition/train_audio_resampled_32000
         sr: 32000
         img_size: 224
+        soft_rate: 0.8
         spectrogram_transforms: null
         waveform_transforms: null
     
@@ -33,11 +34,11 @@ scheduler:
         eta_min: 1.e-8
 
 pretrain_path: null
-logdir: ../logs/resnest50f_bce_baseline
+logdir: ../logs/efficientnet-b3_bcekd_baseline
 
 model:
     backbone: 
-        type: resnest50_fast_1s1x64d
+        type: efficientnet-b3
         params:
             backbone_weights: imagenet
     heads:
@@ -54,16 +55,15 @@ loss_fn:
         params: null
 
 engine: 
-    type: BirdSongBCEEngine
+    type: BirdSongBCEKDEngine
     params: 
         init_epoch: 0
         save_interval: -1
         accumulation_steps: 1
         save_metrics: [f1]
         save_losses: [loss]
-        # use_amp: true
         use_amp: false
         opt_level: O1
         calc_train_metrics: true
         calc_metrics_mode: epoch
-        requierd_eval_data: [targets]
+        requierd_eval_data: [targets_clip]

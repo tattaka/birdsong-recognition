@@ -4,12 +4,10 @@ train_df: train_32000.csv
 
 data_path: ../input/birdsong-recognition
 dataset: 
-    type: BirdSongDataset
+    type: BirdSongWaveDataset
     params:
         data_path: ../input/birdsong-recognition/train_audio_resampled_32000
         sr: 32000
-        img_size: 224
-        spectrogram_transforms: null
         waveform_transforms: null
     
 num_fold: 5
@@ -33,9 +31,11 @@ scheduler:
         eta_min: 1.e-8
 
 pretrain_path: null
-logdir: ../logs/resnest50f_bce_baseline
+# logdir: ../logs/resnest50f_wavebce_baseline
+logdir: ../logs/resnest50f_wavebce_baseline_unfreeze
 
 model:
+    type: WaveInputModel
     backbone: 
         type: resnest50_fast_1s1x64d
         params:
@@ -54,7 +54,7 @@ loss_fn:
         params: null
 
 engine: 
-    type: BirdSongBCEEngine
+    type: BirdSongWaveBCEEngine
     params: 
         init_epoch: 0
         save_interval: -1

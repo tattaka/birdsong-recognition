@@ -33,7 +33,7 @@ scheduler:
         eta_min: 1.e-8
 
 pretrain_path: null
-logdir: ../logs/resnest50f_bce_baseline
+logdir: ../logs/resnest50f_bce_audiopoolall
 
 model:
     backbone: 
@@ -47,6 +47,7 @@ model:
                 num_class: 264
                 pooling: GeM
     mid_activation: ReLU
+    audio_pooling: all
     
 loss_fn:
     classification:

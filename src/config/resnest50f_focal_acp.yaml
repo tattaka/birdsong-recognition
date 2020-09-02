@@ -33,7 +33,7 @@ scheduler:
         eta_min: 1.e-8
 
 pretrain_path: null
-logdir: ../logs/resnest50f_bce_baseline
+logdir: ../logs/resnest50f_focal_acp
 
 model:
     backbone: 
@@ -45,13 +45,16 @@ model:
             type: SimpleHead
             params:
                 num_class: 264
-                pooling: GeM
+                pooling: ACP
     mid_activation: ReLU
     
 loss_fn:
     classification:
-        type: BCEWithLogitsLoss
-        params: null
+        type: FocalLoss
+        params: 
+            activation: sigmoid
+            alpha: 1
+            gamma: 2
 
 engine: 
     type: BirdSongBCEEngine
@@ -61,7 +64,6 @@ engine:
         accumulation_steps: 1
         save_metrics: [f1]
         save_losses: [loss]
-        # use_amp: true
         use_amp: false
         opt_level: O1
         calc_train_metrics: true

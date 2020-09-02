@@ -5,7 +5,7 @@ import torch
 from taggle.engine import BaseEngine
 from torch.nn import functional as F
 
-from metrics import f1
+from metrics import f1, f1_averaging, mAP
 
 
 class BirdSongEngine(BaseEngine):
@@ -107,6 +107,41 @@ class BirdSongFlipIdEngine(BirdSongEngine):
         return metrics
 
 
+class BirdSongSEDEngine(BirdSongBCEEngine):
+
+    def forward(self, data):
+        outputs = self.models["default"](data["image"])
+        outputs["output1"], outputs["output2"] = outputs["output1"]["clipwise_output"], outputs["output1"]["framewise_output"]
+        return outputs
+
+
+class BirdSongWaveBCEEngine(BirdSongBCEEngine):
+
+    def forward(self, data):
+        outputs = self.models["default"](data["wave"])
+        return outputs
+
+
+class BirdSongMultiLabelBCEEngine(BirdSongBCEEngine):
+
+    def calc_metrics(self, outputs, data):
+        metrics = {}
+        # metrics["f1"] = f1_averaging(
+        #     F.sigmoid(outputs["output1"]), data["targets"])
+        metrics["map"] = mAP(
+            torch.sigmoid(outputs["output1"]), data["targets"])
+        return metrics
+
+
+class BirdSongBCEKDEngine(BirdSongBCEEngine):
+
+    def calc_metrics(self, outputs, data):
+        metrics = {}
+        _, labels = data["targets_clip"].max(axis=1)
+        metrics["f1"] = f1(F.softmax(outputs["output1"], dim=1), labels)
+        return metrics
+
+
 def mixup_wrapper(WrappedClass: BirdSongEngine):
 
     class BirdSongMixUpEngine(WrappedClass):
@@ -145,6 +180,7 @@ def mixup_wrapper(WrappedClass: BirdSongEngine):
                 self.index = torch.randperm(data["image"].shape[0])
                 self.index.cuda()
                 if self.cutmix:
+                    # tcutmix
                     band_width = int(data["image"].size(-1) * (1 - self.lam))
                     start = np.random.randint(
                         data["image"].size(-1) - band_width)
@@ -181,4 +217,9 @@ engine_zoo = {"BirdSongBCEEngine": BirdSongBCEEngine,
               "BirdSongOUSMEngine": BirdSongOUSMEngine,
               "BirdSongFlipIdEngine": BirdSongFlipIdEngine,
               "BirdSongOHEMEngine": BirdSongOHEMEngine,
+              "BirdSongSEDEngine": BirdSongSEDEngine,
+              "BirdSongWaveBCEEngine": BirdSongWaveBCEEngine,
+              "BirdSongMultiLabelBCEEngine": BirdSongMultiLabelBCEEngine,
+              "BirdSongBCEKDEngine": BirdSongBCEKDEngine,
+              "BirdSongMixUpBCEKDEngine": mixup_wrapper(BirdSongBCEKDEngine),
               "BirdSongMixUpBCEEngine": mixup_wrapper(BirdSongBCEEngine)}
