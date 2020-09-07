@@ -1,7 +1,9 @@
 import math
 import random
 import warnings
+from functools import partial
 
+import audiomentations
 import cv2
 import librosa
 import numpy as np
@@ -430,4 +432,20 @@ def get_specaugment_transforms(mode="train",
     return transforms
 
 
-transform_zoo = {"SpecAugment": get_specaugment_transforms}
+def get_waveform_transforms(mode="train",
+                            sr=32000):
+    if mode == "train":
+        transforms = audiomentations.Compose([
+            audiomentations.AddGaussianNoise(
+                min_amplitude=0.001, max_amplitude=0.015, p=0.3),
+            # audiomentations.TimeStretch(min_rate=0.8, max_rate=1.25, p=0.3),
+        ])
+    else:
+        transforms = audiomentations.Compose([
+        ])
+    transforms = partial(transforms, sample_rate=sr)
+    return transforms
+
+
+transform_zoo = {"SpecAugment": get_specaugment_transforms,
+                 "WaveAugment": get_waveform_transforms}

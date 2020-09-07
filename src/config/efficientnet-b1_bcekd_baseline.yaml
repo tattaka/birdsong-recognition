@@ -11,7 +11,7 @@ dataset:
         img_size: 224
         soft_rate: 0.8
         spectrogram_transforms: null
-        waveform_transforms: null
+        waveform_transforms: WaveAugment
     
 num_fold: 5
 target: ebird_code

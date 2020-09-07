@@ -11,7 +11,7 @@ dataset:
         img_size: 224
         soft_rate: 0.8
         spectrogram_transforms: null
-        waveform_transforms: null
+        waveform_transforms: WaveAugment
     
 num_fold: 5
 target: ebird_code
@@ -34,7 +34,7 @@ scheduler:
         eta_min: 1.e-8
 
 pretrain_path: null
-logdir: ../logs/resnest50f_bcekd_mixup
+logdir: ../logs/resnest50f_bcekd_tcutmix
 
 model:
     backbone: 
@@ -55,7 +55,7 @@ loss_fn:
         params: null
 
 engine: 
-    type: BirdSongBCEKDEngine
+    type: BirdSongMixUpBCEKDEngine
     params: 
         init_epoch: 0
         save_interval: -1
@@ -67,6 +67,6 @@ engine:
         calc_train_metrics: true
         calc_metrics_mode: epoch
         requierd_eval_data: [targets_clip]
-        alpha: 1.0
+        alpha: 0.3
         mixup_prob: 0.6
         cutmix_prob: 1.0

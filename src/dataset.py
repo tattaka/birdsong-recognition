@@ -411,8 +411,6 @@ class BirdSongMultiLabelDataset(data.Dataset):
 
         if self.spectrogram_transforms:
             melspec = self.spectrogram_transforms(melspec)
-        else:
-            pass
 
         image = mono_to_color(melspec)
         height, width, _ = image.shape
@@ -479,8 +477,6 @@ class BirdSongKDDataset(data.Dataset):
         y, sr = librosa.load(os.path.join(
             self.data_path, ebird_code, wav_name), sr=self.sr, mono=True, res_type="kaiser_fast")
         # y, sr = sf.read(os.path.join(self.data_path, ebird_code, wav_name))
-        if self.waveform_transforms:
-            y = self.waveform_transforms(y)
         len_y = len(y)
         effective_length = sr * PERIOD
         chunk_num = len_y // effective_length
@@ -503,6 +499,8 @@ class BirdSongKDDataset(data.Dataset):
         elif len_y > effective_length:
             y = y[effective_length * chunk: effective_length
                   * (chunk + 1)].astype(np.float32)
+        if self.waveform_transforms:
+            y = self.waveform_transforms(y)
         # print(len(y))
         melspec = librosa.feature.melspectrogram(
             y, sr=sr, **self.melspectrogram_parameters)
@@ -510,8 +508,6 @@ class BirdSongKDDataset(data.Dataset):
 
         if self.spectrogram_transforms:
             melspec = self.spectrogram_transforms(melspec)
-        else:
-            pass
 
         image = mono_to_color(melspec)
         height, width, _ = image.shape
@@ -666,8 +662,6 @@ class BirdSongDataset(data.Dataset):
 
         if self.spectrogram_transforms:
             melspec = self.spectrogram_transforms(melspec)
-        else:
-            pass
 
         image = mono_to_color(melspec)
         height, width, _ = image.shape
@@ -746,8 +740,6 @@ class BirdSongFlipIdDataset(data.Dataset):
 
         if self.spectrogram_transforms:
             melspec = self.spectrogram_transforms(melspec)
-        else:
-            pass
 
         image = mono_to_color(melspec)
         height, width, _ = image.shape

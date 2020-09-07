@@ -17,7 +17,7 @@ def worker_init_fn(worker_id):
     np.random.seed(np.random.get_state()[1][0] + worker_id)
 
 
-def main(configs, one_fold=False):
+def main(configs, out_name):
     seed = set()
     for c in configs.values():
         seed.add(c["seed"])
@@ -80,12 +80,13 @@ def main(configs, one_fold=False):
                              ["data_path"], ebird_code, f'{file_prefix}_probs'), o)
         recon_df.loc[di, "pseudo_label_path"] = os.path.abspath(os.path.join(c_dict["dataset"]["params"]
                                                                              ["data_path"], ebird_code, f'{file_prefix}_probs.npy'))
-    recon_df.to_csv("../input/birdsong-recognition/train_pl.csv")
+    recon_df.to_csv("../input/birdsong-recognition/{out_name}.csv")
 
 
 if __name__ == __name__:
     parser = argparse.ArgumentParser()
     parser.add_argument('--configs', nargs='+', default='baseline')
+    parser.add_argument('--out_name', default='train_pl')
     args = parser.parse_args()
     configs = {}
     for c in args.configs:
@@ -93,4 +94,4 @@ if __name__ == __name__:
         print(f"config_path:{config_path}")
         with open(config_path, "r+") as f:
             configs.update({c: yaml.load(f)})
-    main(configs)
+    main(configs, args.out_name)

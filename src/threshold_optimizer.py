@@ -42,7 +42,7 @@ def main(configs, target_fold=-1):
             model = convert_model(model)
             output_dir = os.path.join(c_dict["logdir"], f"fold{fold}")
             w = torch.load(
-                output_dir + '/checkpoints/best_f1.pth')["default_model_state_dict"]
+                output_dir + '/checkpoints/best_loss.pth')["default_model_state_dict"]
             model.load_state_dict(w)
             Dataset = dataset_zoo["ClipwiseDataset"]
             model.to(device)
