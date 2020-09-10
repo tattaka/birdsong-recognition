@@ -1,7 +1,6 @@
 seed: 2020
 
-train_df: train_pl.csv
-
+train_df: train_pl2.csv
 
 data_path: ../input/birdsong-recognition
 dataset: 
@@ -10,7 +9,7 @@ dataset:
         data_path: ../input/birdsong-recognition/train_audio_resampled_32000
         sr: 32000
         img_size: 224
-        soft_rate: 0.8
+        soft_rate: 0.9
         spectrogram_transforms: null
         waveform_transforms: WaveAugment
     
@@ -35,7 +34,7 @@ scheduler:
         eta_min: 1.e-8
 
 pretrain_path: null
-logdir: ../logs/resnest50f_bcekd_mixup
+logdir: ../logs/resnest50f_bcekd2_tcutmix
 
 model:
     backbone: 
@@ -70,4 +69,4 @@ engine:
         requierd_eval_data: [targets_clip]
         alpha: 0.3
         mixup_prob: 0.6
-        cutmix_prob: 0.0
+        cutmix_prob: 1.0

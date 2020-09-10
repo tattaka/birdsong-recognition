@@ -80,7 +80,7 @@ def main(configs, out_name):
                              ["data_path"], ebird_code, f'{file_prefix}_probs'), o)
         recon_df.loc[di, "pseudo_label_path"] = os.path.abspath(os.path.join(c_dict["dataset"]["params"]
                                                                              ["data_path"], ebird_code, f'{file_prefix}_probs.npy'))
-    recon_df.to_csv("../input/birdsong-recognition/{out_name}.csv")
+    recon_df.to_csv(f"../input/birdsong-recognition/{out_name}.csv")
 
 
 if __name__ == __name__:
