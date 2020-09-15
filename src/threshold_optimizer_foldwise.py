@@ -21,7 +21,7 @@ def worker_init_fn(worker_id):
 
 def main(configs, folds, valid_df):
     seed = set()
-    for c in configs.values():
+    for c in configs:
         seed.add(c["seed"])
     assert(len(seed) == 1)
     seed = list(seed)[0]
@@ -37,7 +37,7 @@ def main(configs, folds, valid_df):
         model = convert_model(model)
         output_dir = os.path.join(c_dict["logdir"], f"fold{fold}")
         w = torch.load(
-            output_dir + '/checkpoints/best_loss.pth')["default_model_state_dict"]
+            output_dir + '/checkpoints/best_f1.pth')["default_model_state_dict"]
         model.load_state_dict(w)
         Dataset = dataset_zoo["ClipwiseDataset"]
         model.to(device)
